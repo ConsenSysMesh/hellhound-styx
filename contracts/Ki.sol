@@ -4,6 +4,7 @@ import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 import "openzeppelin-solidity/contracts/access/Roles.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/utils/Address.sol";
+import "./SlaInterface.sol";
 
 contract Ki is Ownable {
 
@@ -26,14 +27,17 @@ contract Ki is Ownable {
   event LogComputeStarted (address indexed ownerAddress);
 
   event LogDisputeStarted (address indexed ownerAddress, address indexed disputeContractAddress);
+  
+  event LogNodeAdded (address indexed nodeAddress);
 
   constructor(bytes32 _computationId, address _slaContractAddress)
     public
     nonZeroBytes32(_computationId)
-    isValidContract(_slaContractAddress)
+    nonEmptyAddress(_slaContractAddress)
+    isContract(_slaContractAddress)
   {
       Ownable._transferOwnership(msg.sender);
-      idComputation = _idComputation;
+      computationId = _computationId;
       slaContractAddress = _slaContractAddress;
   }
 
@@ -42,9 +46,19 @@ contract Ki is Ownable {
    payable
    onlyOwner
   {
-    Sla sla = new Sla(slaContractAddress);
-    require(sla.getCmputationFees()<=msg.value)
+    SlaInterface sla = SlaInterface(slaContractAddress);
+    require(sla.computationFees()<=msg.value);
     emit LogComputeStarted(msg.sender);
+  }
+  
+  function addNode(address _nodeAddress)
+   public
+   nonEmptyAddress(_nodeAddress)
+   //TODO only bank
+  {
+    nodes.add(_nodeAddress);
+    emit LogNodeAdded(_nodeAddress);
+    
   }
 
   function startDispute()
@@ -52,9 +66,9 @@ contract Ki is Ownable {
    payable
    onlyOwner
   {
-    Sla sla = new Sla(slaContractAddress);
-    require(sla.getMediatorsFees()<=msg.value)
-    emit LogDisputeStarted(msg.sender);
+    SlaInterface sla = SlaInterface(slaContractAddress);
+    require(sla.mediatorsFees()<=msg.value);
+    emit LogDisputeStarted(msg.sender, address(0)); //TODO add dispute contract address
   }
 
   /**
@@ -64,12 +78,20 @@ contract Ki is Ownable {
       require(_value != bytes32(0));
       _;
   }
+  
+  /**
+  * @dev Throws if address is empty
+  */
+  modifier nonEmptyAddress(address value){
+    require(value != address(0));
+    _;
+  }
 
   /**
-  * @dev Throws if address is empty or is not a contract
+  * @dev Throws if it is not a contract
   */
-  modifier isValidContract(address _slaContractAddress){
-    require(_slaContractAddress != address(0) && _slaContractAddress.isContract());
+  modifier isContract(address _slaContractAddress){
+    require(_slaContractAddress.isContract());
     _;
   }
 
