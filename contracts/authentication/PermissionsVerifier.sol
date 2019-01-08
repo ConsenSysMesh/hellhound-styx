@@ -3,8 +3,8 @@ pragma solidity ^0.5.0;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 /**
- * @title AuthenticationVerifier
- * @dev This contract is used to check the permissions of a user
+ * @title PermissionsVerifier
+ * @dev This contract makes it possible to check the permissions that a user possesses via a signature mechanism
  */
  
 contract PermissionsVerifier is Ownable  {
