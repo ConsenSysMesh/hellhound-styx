@@ -9,24 +9,7 @@ import "../Sla.sol";
  */
 contract ContractFactory {
     
-    bytes data;
-    
-    constructor()
-        public
-    {
-            data = calldata;
-        
-    }
-    
-    
-    function getcode() 
-        public
-        view
-        returns (bytes memory) 
-    {
-        return data;   
-    }
- 
+   
     
     function deployByteCode(bytes memory code) 
         public
