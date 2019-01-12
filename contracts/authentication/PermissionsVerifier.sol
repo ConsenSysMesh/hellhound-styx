@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.4.21 <0.6.0;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
@@ -65,7 +65,7 @@ contract PermissionsVerifier is Ownable  {
     * @param signature signature to be verifed
     * @return validity of the token
     */
-    function isAuthorizedToCallContractAndMethod(address user, address contractDestination, bytes4 contractMethodId,  bytes memory signature)
+    function isAuthorizedToCallContractAndMethod(address user, address contractDestination, bytes memory contractMethodId,  bytes memory signature)
         public 
         nonEmptyAddress(user)
         view 
