@@ -4,10 +4,10 @@ import "./PermissionsVerifier.sol";
 
 
 /**
- * @title Allowable
+ * @title Safe
  * @dev This contract makes it possible to check the permissions that a user possesses via a signature mechanism
  */
-contract Allowable {
+contract Safe {
     
     
     // Function selectors are 4 bytes long, as documented in

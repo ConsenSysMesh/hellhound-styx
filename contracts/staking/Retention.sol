@@ -3,13 +3,13 @@ pragma solidity >=0.4.21 <0.6.0;
 import "zos-lib/contracts/Initializable.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "../authentication/Allowable.sol";
+import "../authentication/Safe.sol";
 
 /**
  * @title Retention
  * @dev Contract that allows users to stack ethers
  */
-contract Retention is Initializable, Allowable, Ownable  {
+contract Retention is Initializable, Safe, Ownable  {
 
   using SafeMath for uint256;
 
@@ -29,7 +29,7 @@ contract Retention is Initializable, Allowable, Ownable  {
     initializer
   {
     Ownable._transferOwnership(msg.sender);
-    Allowable._definePermissionVerifierContractAddress(permissionVerifierContractAddress);
+    Safe._definePermissionVerifierContractAddress(permissionVerifierContractAddress);
   }
 
 

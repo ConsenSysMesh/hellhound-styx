@@ -39,7 +39,8 @@ contract PermissionsVerifier is Ownable  {
             bytes32 hash = keccak256(abi.encodePacked(address(this), user));
             return _isValidSignature(hash, signature);
     }
-  
+ 
+	
     /**
     * @dev Verifies if message was signed by owner to give access to user for a specific contract.
     * @param user Address of user
