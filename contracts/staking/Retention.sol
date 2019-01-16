@@ -14,7 +14,7 @@ contract Retention is Initializable, Safe, Ownable  {
   using SafeMath for uint256;
 
   /**
-   * @dev A registry of staked ethers
+   * @dev A registry of staked ethers (wei)
    */
   mapping(address => uint256) private _stakingRegistry;
 
