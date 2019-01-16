@@ -19,12 +19,16 @@ library Mediators {
     /**
      * @dev adds a mediator to the pool
      */
-    function add(Pool storage pool, address mediator) internal {
-        require(mediator != address(0));
-        require(!has(pool, mediator));
-
-        pool.mediators.push(mediator);
-        pool.decisions[mediator] = Decision.UNKNWON;
+    function add(Pool storage pool, address[] memory mediators) internal {
+        //there is at least one mediator to add
+        require(mediators.length > 0);
+        //there is no mediator in the pool
+        require(pool.mediators.length == 0);
+        //init all mediators
+        for (uint i=0; i<mediators.length; i++) {
+            pool.mediators.push(mediators[i]);
+            pool.decisions[mediators[i]] = Decision.UNKNWON;   
+        }
     }
 
     /**

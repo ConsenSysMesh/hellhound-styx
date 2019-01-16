@@ -20,7 +20,7 @@ contract Arbitrable is Ownable {
     
     uint256 private _necessaryArbitrationFees;
     
-    event LogMediatorAdded();
+    event LogMediatorsAdded();
     
     event LogMediatorVoted(address indexed mediatorAddress, Mediators.Decision decision);
     
@@ -31,7 +31,7 @@ contract Arbitrable is Ownable {
     /**
      * Create the contract
      * @param trustedThirdParty the address of a trusted third party. This address will be able to choose the mediators
-     * @param necessaryArbitrationFees the number of fees that will be required to start an arbitration
+     * @param necessaryArbitrationFees the number of fees that will be required to start an arbitration (wei)
      */
     constructor (address trustedThirdParty, uint256 necessaryArbitrationFees) public {
         Ownable._transferOwnership(msg.sender);
@@ -48,6 +48,8 @@ contract Arbitrable is Ownable {
         payable
         onlyOwner
     {
+        //there is at least one mediator
+        require (_mediators.getNumberOfMediators()>0);
         //check that the user sends enough fees for mediators
         require (msg.value==_necessaryArbitrationFees);
         emit LogArbitrationStarted();
@@ -89,14 +91,14 @@ contract Arbitrable is Ownable {
     
     /**
      * @dev Add mediator. Mediators can only be added by a trusted third party
-     * @param mediator the mediator to add
+     * @param mediators mediators to add
      */
-    function addMediator(address mediator)
+    function addMediators(address[] memory mediators)
        public
        onlyTrustedThirdParty
     {
-        _mediators.add(mediator);
-        emit LogMediatorAdded();
+        _mediators.add(mediators);
+        emit LogMediatorsAdded();
     }
 
     /**
