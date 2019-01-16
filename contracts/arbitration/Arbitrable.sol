@@ -63,7 +63,7 @@ contract Arbitrable is Ownable {
         public
         onlyMediator
     {
-        _setDecision(Mediators.Decision.AGREE);
+        _setDecision(Mediators.Decision.Agree);
     }
     /**
      * @dev the mediator will call this mehtod if he does not agree with the opinion of the owner who requested the arbitration.
@@ -73,7 +73,7 @@ contract Arbitrable is Ownable {
         public
         onlyMediator
     {
-        _setDecision(Mediators.Decision.DISAGREE);
+        _setDecision(Mediators.Decision.Disagree);
     }
     
     
@@ -83,7 +83,7 @@ contract Arbitrable is Ownable {
         //check that there are still fees for the mediator
         require (address(this).balance >= 0);
         //check that the mediator has not already voted
-        require (_mediators.getDecision(msg.sender) == Mediators.Decision.UNKNWON);
+        require (_mediators.getDecision(msg.sender) == Mediators.Decision.Unknown);
         _mediators.setDecision(msg.sender, decision);
         msg.sender.transfer(_necessaryArbitrationFees/_mediators.getNumberOfMediators());
         emit LogMediatorVoted(msg.sender, decision);

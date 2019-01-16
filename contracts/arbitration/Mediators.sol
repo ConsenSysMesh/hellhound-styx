@@ -8,7 +8,7 @@ pragma solidity >=0.4.21 <0.6.0;
  */
 library Mediators {
     
-    enum Decision {NOT_FOUND, AGREE, DISAGREE, UNKNWON}
+    enum Decision {NotFound, Agree, Disagree, Unknown}
     
     struct Pool {
         address[] mediators;
@@ -27,7 +27,7 @@ library Mediators {
         //init all mediators
         for (uint i=0; i<mediators.length; i++) {
             pool.mediators.push(mediators[i]);
-            pool.decisions[mediators[i]] = Decision.UNKNWON;   
+            pool.decisions[mediators[i]] = Decision.Unknown;   
         }
     }
 
@@ -37,7 +37,7 @@ library Mediators {
      */
     function has(Pool storage pool, address mediator) internal view returns (bool) {
         require(mediator != address(0));
-        return pool.decisions[mediator] != Decision.NOT_FOUND;
+        return pool.decisions[mediator] != Decision.NotFound;
     }
     
     /**
@@ -81,7 +81,7 @@ library Mediators {
      */
     function isArbitrationCompleted(Pool storage pool) internal view returns (bool) {
         for (uint i=0; i<pool.mediators.length; i++) {
-            if(pool.decisions[pool.mediators[i]] == Decision.UNKNWON){
+            if(pool.decisions[pool.mediators[i]] == Decision.Unknown){
                 return false;
             }
         }
