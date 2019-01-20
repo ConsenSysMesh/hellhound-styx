@@ -75,17 +75,6 @@ library Mediators {
         return pool.decisions[mediator];
     }
     
-    /**
-     * @dev check if all mediators voted
-     * @return bool
-     */
-    function isArbitrationCompleted(Pool storage pool) internal view returns (bool) {
-        for (uint i=0; i<pool.mediators.length; i++) {
-            if(pool.decisions[pool.mediators[i]] == Decision.Unknown){
-                return false;
-            }
-        }
-        return true;
-    }
+ 
     
 }

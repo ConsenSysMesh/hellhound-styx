@@ -14,11 +14,13 @@ contract Arbitrable is Ownable {
     
     using Mediators for Mediators.Pool;
     
-    Mediators.Pool private _mediators;
+    Mediators.Pool private mediators;
     
-    Roles.Role private _trustedThirdParties;
+    Roles.Role private trustedThirdParties;
     
-    uint256 private _necessaryArbitrationFees;
+    uint256 private necessaryArbitrationFees;
+    
+    bool private arbitrationStarted;
     
     event LogMediatorsAdded();
     
@@ -30,13 +32,9 @@ contract Arbitrable is Ownable {
 
     /**
      * Create the contract
-     * @param trustedThirdParty the address of a trusted third party. This address will be able to choose the mediators
-     * @param necessaryArbitrationFees the number of fees that will be required to start an arbitration (wei)
      */
-    constructor (address trustedThirdParty, uint256 necessaryArbitrationFees) public {
-        Ownable._transferOwnership(msg.sender);
-         _trustedThirdParties.add(trustedThirdParty);
-        _necessaryArbitrationFees=necessaryArbitrationFees;
+    constructor () internal {
+        Ownable(msg.sender);
     }
     
     /**
@@ -47,11 +45,13 @@ contract Arbitrable is Ownable {
         public
         payable
         onlyOwner
+        onlyNotStartedArbitration
     {
         //there is at least one mediator
-        require (_mediators.getNumberOfMediators()>0);
+        require (mediators.getNumberOfMediators()>0);
         //check that the user sends enough fees for mediators
-        require (msg.value==_necessaryArbitrationFees);
+        arbitrationStarted = true;
+        require (msg.value==necessaryArbitrationFees);
         emit LogArbitrationStarted();
     }
     
@@ -65,6 +65,8 @@ contract Arbitrable is Ownable {
     {
         _setDecision(Mediators.Decision.Agree);
     }
+    
+    
     /**
      * @dev the mediator will call this mehtod if he does not agree with the opinion of the owner who requested the arbitration.
      * 
@@ -76,48 +78,83 @@ contract Arbitrable is Ownable {
         _setDecision(Mediators.Decision.Disagree);
     }
     
-    
-    function _setDecision (Mediators.Decision decision)
-        internal
+    /**
+     * @dev get Number Of Mediators
+     * @return number of mediators
+     */
+    function getNbMediators()
+        public
+        view
+        returns (uint)
     {
-        //check that there are still fees for the mediator
-        require (address(this).balance >= 0);
-        //check that the mediator has not already voted
-        require (_mediators.getDecision(msg.sender) == Mediators.Decision.Unknown);
-        _mediators.setDecision(msg.sender, decision);
-        msg.sender.transfer(_necessaryArbitrationFees/_mediators.getNumberOfMediators());
-        emit LogMediatorVoted(msg.sender, decision);
+       return mediators.getNumberOfMediators();
     }
     
     /**
      * @dev Add mediator. Mediators can only be added by a trusted third party
-     * @param mediators mediators to add
+     * @param _mediators mediators to add
      */
-    function addMediators(address[] memory mediators)
+    function addMediators(address[] memory _mediators)
        public
        onlyTrustedThirdParty
     {
-        _mediators.add(mediators);
+        mediators.add(_mediators);
         emit LogMediatorsAdded();
     }
 
     /**
      * @dev Add a trusted third party 
-     * @param trustedThirdParty trusted third party address 
+     * @param _addTrustedThirdPartyAddress trusted third party address 
      */
-    function addTrustedThirdParty(address trustedThirdParty)
+    function addTrustedThirdParty(address _addTrustedThirdPartyAddress)
        public
        onlyTrustedThirdParty
     {
-        _trustedThirdParties.add(trustedThirdParty);
-        emit LogTrustedThirdPartyAdded(trustedThirdParty);
+        trustedThirdParties.add(_addTrustedThirdPartyAddress);
+        emit LogTrustedThirdPartyAdded(_addTrustedThirdPartyAddress);
+    }
+    
+    
+    function _setDecision (Mediators.Decision _decision)
+        internal
+    {
+        //check that there are still fees for the mediator
+        require (address(this).balance >= 0);
+        //check that the mediator has not already voted
+        require (mediators.getDecision(msg.sender) == Mediators.Decision.Unknown);
+        mediators.setDecision(msg.sender, _decision);
+        msg.sender.transfer(necessaryArbitrationFees/mediators.getNumberOfMediators());
+        emit LogMediatorVoted(msg.sender, _decision);
+    }
+    
+    function _setNecessaryArbitrationFees (uint256 _necessaryArbitrationFees)
+        internal
+    {
+        necessaryArbitrationFees=_necessaryArbitrationFees;
+    }
+    
+    
+    function _addTrustedThirdParty (address _addTrustedThirdPartyAddress)
+        internal
+    {
+        trustedThirdParties.add(_addTrustedThirdPartyAddress);
+    }
+    
+    
+    /**
+    * @dev Throws if arbitration is already started
+    */
+    modifier onlyNotStartedArbitration(){
+         require(!arbitrationStarted);
+         arbitrationStarted = true;
+         _;
     }
     
     /**
     * @dev Throws if it's not a mediator
     */
     modifier onlyMediator(){
-         require(_mediators.has(msg.sender));
+         require(mediators.has(msg.sender));
          _;
     }
     
@@ -125,7 +162,7 @@ contract Arbitrable is Ownable {
     * @dev Throws if it's not a trusted third party
     */
     modifier onlyTrustedThirdParty(){
-         require(_trustedThirdParties.has(msg.sender));
+         require(trustedThirdParties.has(msg.sender));
          _;
     }
     
